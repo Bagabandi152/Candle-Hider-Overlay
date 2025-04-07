@@ -1,0 +1,47 @@
+//@version=5
+indicator("Candle Hider Overlay", overlay=true)
+
+// Inputs
+hideAfterTime = input.time(timestamp("2025-04-03 13:00 +0000"), "Нуугдах цаг (UTC)")
+preLineColor = input.color(color.gray, "Эхний шугамын өнгө")  // preBox-ийн оронд шугамын өнгө
+boxColor = input.color(color.black, "Тэгш өнцөгтийн дэвсгэр өнгө")
+boxTransp = input.int(0, "Дэвсгэр тунгалаг байдал", minval=0, maxval=100)
+boxWidth = input.int(1, "Тэгш өнцөгтийн өргөн (барууд)", minval=1, maxval=10)
+
+// Хязгааргүй өндөртөй болгохын тулд маш том утгууд
+var float unlimitedTop = 1e10    // Маш өндөр утга
+var float unlimitedBottom = -1e10 // Маш доод утга
+
+// Variables
+var box myBox = na
+var line preLine = na  // preBox-ийн оронд шугамын хувьсагч
+
+// Нуух логик
+if time >= hideAfterTime
+    myBox := box.new(
+         left = bar_index,  // Эндээс float утга хасахгүйгээр шууд bar_index ашиглана
+         right = bar_index + boxWidth,
+         top = unlimitedTop,
+         bottom = unlimitedBottom,
+         bgcolor = color.new(boxColor, boxTransp),
+         border_color = color.new(boxColor, boxTransp),
+         border_width = 1
+     )
+
+// Хамгийн эхний лааны өмнө 0.5 урттай шугам зурах
+if time >= hideAfterTime and time[1] < hideAfterTime
+    // 0.5 барын урттай шугамыг дуурайхын тулд 1 барын зайд шугам зурна
+    preLine := line.new(
+         bar_index - 1,  // Эхний лааны өмнөх бар
+         unlimitedBottom,  // Доод хязгаар
+         bar_index,      // Эхний лааны байрлал
+         unlimitedTop,   // Дээд хязгаар
+         color=preLineColor,
+         style=line.style_solid,
+         width=15 // Шугамын зузааныг тохируулж болно
+     )
+
+// Таслах цагийг тэмдэглэх шугам (заавал биш)
+var line cutoffLine = na
+if time >= hideAfterTime and time[1] < hideAfterTime
+    cutoffLine := line.new(bar_index, low, bar_index, high, color=color.red, style=line.style_dashed)
