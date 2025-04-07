@@ -3,10 +3,10 @@ indicator("Candle Hider Overlay - 3B - MN", overlay=true)
 
 // Inputs
 hideAfterTime = input.time(timestamp("2025-04-03 13:00 +0000"), "Нуугдах цаг (UTC)")
-preLineColor = input.color(color.black, "Эхний шугамын өнгө")  // preBox-ийн оронд шугамын өнгө
-boxColor = input.color(color.black, "Тэгш өнцөгтийн дэвсгэр өнгө")
+preLineColor = input.color(color.rgb(0, 0, 0), "Эхний шугамын өнгө")
+boxColor = input.color(color.rgb(0, 0, 0), "Тэгш өнцөгтийн дэвсгэр өнгө")
 boxTransp = input.int(0, "Дэвсгэр тунгалаг байдал", minval=0, maxval=100)
-boxWidth = input.int(1, "Тэгш өнцөгтийн өргөн (барууд)", minval=1, maxval=10)
+boxWidth = input.int(2, "Тэгш өнцөгтийн өргөн (барууд)", minval=1, maxval=10) // boxWidth-ийг 2 болгож нэмэгдүүлсэн
 
 // Хязгааргүй өндөртөй болгохын тулд маш том утгууд
 var float unlimitedTop = 1e10    // Маш өндөр утга
@@ -14,12 +14,12 @@ var float unlimitedBottom = -1e10 // Маш доод утга
 
 // Variables
 var box myBox = na
-var line preLine = na  // preBox-ийн оронд шугамын хувьсагч
+var line preLine = na
 
 // Нуух логик
 if time >= hideAfterTime
     myBox := box.new(
-         left = bar_index,  // Эндээс float утга хасахгүйгээр шууд bar_index ашиглана
+         left = bar_index - 1,  // preLine-тай давхцахын тулд 1 барын өмнө эхэлнэ
          right = bar_index + boxWidth,
          top = unlimitedTop,
          bottom = unlimitedBottom,
@@ -30,15 +30,14 @@ if time >= hideAfterTime
 
 // Хамгийн эхний лааны өмнө 0.5 урттай шугам зурах
 if time >= hideAfterTime and time[1] < hideAfterTime
-    // 0.5 барын урттай шугамыг дуурайхын тулд 1 барын зайд шугам зурна
     preLine := line.new(
          bar_index - 1,  // Эхний лааны өмнөх бар
-         unlimitedBottom,  // Доод хязгаар
-         bar_index,      // Эхний лааны байрлал
-         unlimitedTop,   // Дээд хязгаар
+         unlimitedBottom,
+         bar_index,      // `float` утга ашиглахгүй, шууд `bar_index` ашиглана
+         unlimitedTop,
          color=preLineColor,
          style=line.style_solid,
-         width=15 // Шугамын зузааныг тохируулж болно
+         width=15
      )
 
 // Таслах цагийг тэмдэглэх шугам (заавал биш)
