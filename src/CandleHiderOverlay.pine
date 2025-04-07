@@ -1,5 +1,5 @@
 //@version=5
-indicator("Candle Hider Overlay - Little BackTest - MN", overlay=true)
+indicator("Candle Hider Overlay - 3B - MN", overlay=true)
 
 // Inputs
 hideAfterTime = input.time(timestamp("2025-04-03 13:00 +0000"), "Нуугдах цаг (UTC)")
